@@ -1,0 +1,49 @@
+---
+import { t, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+---
+<section class="hero">
+  <div class="illustration-container">
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <path class="svg-stroke" style="stroke:var(--text-sub);stroke-width:1;opacity:0.4;" d="M10 148 Q 60 144 100 146 Q 140 148 190 144" fill="none"></path>
+      <path class="lake-line svg-stroke" d="M10 162 Q 35 158 60 162 T 110 160" fill="none"></path>
+      <path class="lake-line svg-stroke" d="M90 170 Q 120 166 150 170 T 195 168" fill="none"></path>
+      <path class="lake-line svg-stroke" d="M5 178 Q 40 174 75 178 T 140 176" fill="none"></path>
+      <path class="svg-stroke" style="stroke-width:2;" d="M55 155 Q 80 150 105 152 Q 125 154 145 151" fill="none"></path>
+      <path style="fill:var(--text-sub);opacity:0.08;" d="M55 155 Q 80 150 105 152 Q 125 154 145 151 L 145 165 Q 100 168 55 165 Z"></path>
+      <line style="stroke:var(--text-sub);stroke-width:0.8;opacity:0.3;" x1="75" y1="155" x2="74" y2="163"></line>
+      <line style="stroke:var(--text-sub);stroke-width:0.8;opacity:0.3;" x1="100" y1="153" x2="99" y2="162"></line>
+      <line style="stroke:var(--text-sub);stroke-width:0.8;opacity:0.3;" x1="122" y1="153" x2="121" y2="162"></line>
+      <g class="bird-body-group">
+        <path class="svg-stroke" style="stroke-width:2;" d="M93 148 L 91 154" fill="none"></path>
+        <path class="svg-stroke" style="stroke-width:2;" d="M101 148 L 103 154" fill="none"></path>
+        <path class="svg-stroke" style="stroke-width:1.5;" d="M88 154 L 91 154 L 93 156" fill="none"></path>
+        <path class="svg-stroke" style="stroke-width:1.5;" d="M106 156 L 103 154 L 100 154" fill="none"></path>
+        <path class="svg-stroke" d="M115 118 C 128 98, 100 68, 80 78 C 60 88, 52 110, 62 128 C 72 146, 112 143, 115 118 Z" fill="none"></path>
+        <path class="svg-stroke" d="M68 118 C 80 128, 98 132, 110 120" fill="none"></path>
+        <path class="svg-stroke" d="M62 128 L 42 133 C 48 120, 58 116, 62 128" fill="none"></path>
+        <circle style="fill:var(--line-color);transition:fill 0.8s ease;" cx="91" cy="88" r="2.5"></circle>
+        <path class="svg-stroke" d="M100 93 L 113 90 L 103 98" fill="none"></path>
+        <path class="svg-gold" d="M110 87 L 142 76 L 144 81 L 112 92 Z"></path>
+        <path class="svg-stroke" d="M110 87 L 142 76 L 144 81 L 112 92 Z" stroke-width="1"></path>
+      </g>
+    </svg>
+  </div>
+
+  <div class="hero-intro">
+    <p>{t('hero.tagline1', lang)}</p>
+    <p>
+      {t('hero.tagline2', lang)}
+      {' '}
+      <span class="mono tagline-accent">{t('hero.tagline2.accent', lang)}</span>
+      {' '}
+      {t('hero.tagline3', lang)}
+    </p>
+    <p>{t('hero.tagline4', lang)}</p>
+  </div>
+</section>

@@ -1,0 +1,18 @@
+---
+interface Props {
+  title: string;
+  date: Date;
+  summary: string;
+  href: string;
+}
+
+const { title, date, summary, href } = Astro.props;
+const dateStr = date.toISOString().slice(0, 10).replace(/-/g, '.');
+---
+<a href={href} class="post-card">
+  <div class="post-card-meta">
+    <span>{dateStr}</span>
+  </div>
+  <h2 class="post-card-title">{title}</h2>
+  <p class="post-card-excerpt">{summary}</p>
+</a>

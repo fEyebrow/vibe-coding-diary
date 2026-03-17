@@ -1,0 +1,36 @@
+---
+title: "The Core Module Written While Eating Fries"
+date: 2023-10-12
+summary: "Ditching the rigid UML diagrams, on a perfectly sunny afternoon, I wrote the core scheduling engine on pure intuition while munching on fries."
+lang: "en"
+---
+
+On a perfectly sunny afternoon, I sat in a café by West Lake, munching on fries, and opened my editor.
+
+No whiteboard, no architecture diagrams, no meeting room debates. Just intuition, and an indescribable feeling of "this is right."
+
+## The Power of Intuition
+
+When you've been immersed in a problem domain for a long time, your brain quietly sorts through the fragments in the background. At some moment, when you relax, the answer surfaces naturally.
+
+```typescript
+class SchedulerEngine {
+  private queue: Task[] = [];
+
+  enqueue(task: Task): void {
+    this.queue.push(task);
+    this.flush();
+  }
+
+  private flush(): void {
+    while (this.queue.length > 0) {
+      const task = this.queue.shift();
+      if (task) task.execute();
+    }
+  }
+}
+```
+
+This code was written that afternoon. Simple, direct, no over-engineering. It turned out to support the entire system's core scheduling logic.
+
+Turns out, when your vibe is right, the code naturally flows to its optimal shape.

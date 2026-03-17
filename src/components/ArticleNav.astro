@@ -1,0 +1,43 @@
+---
+import { t, type Lang } from '../i18n/utils';
+
+interface PostRef {
+  title: string;
+  href: string;
+}
+
+interface Props {
+  lang: Lang;
+  prev: PostRef | null;
+  next: PostRef | null;
+}
+
+const { lang, prev, next } = Astro.props;
+const indexHref = `/${lang}/`;
+---
+<nav class="article-footer-nav">
+  <div class="prev-next">
+    {prev ? (
+      <a href={prev.href} class="nav-item prev">
+        <span class="nav-label">{t('post.previous', lang)}</span>
+        <span class="nav-link-title">{prev.title}</span>
+      </a>
+    ) : (
+      <div class="nav-item prev"></div>
+    )}
+    {next ? (
+      <a href={next.href} class="nav-item next">
+        <span class="nav-label">{t('post.next', lang)}</span>
+        <span class="nav-link-title">{next.title}</span>
+      </a>
+    ) : (
+      <div class="nav-item next"></div>
+    )}
+  </div>
+  <a href={indexHref} class="back-to-list">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M19 12H5M12 19l-7-7 7-7"></path>
+    </svg>
+    <span>{t('post.backToIndex', lang)}</span>
+  </a>
+</nav>

@@ -1,0 +1,40 @@
+---
+interface Props {
+  lang: 'zh' | 'en';
+  currentPath: string;
+}
+
+const { lang, currentPath } = Astro.props;
+---
+<button
+  class="icon-btn lang-toggle"
+  id="langToggle"
+  aria-label="Switch Language"
+  title="Switch Language"
+  data-current-path={currentPath}
+  data-current-lang={lang}
+  style={lang === 'en' ? 'color: var(--accent-willow)' : ''}
+>
+  <svg viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="10"></circle>
+    <path d="M2 12h20"></path>
+    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+  </svg>
+</button>
+
+<script>
+  function initLanguageSwitch() {
+    const btn = document.getElementById('langToggle') as HTMLButtonElement | null;
+    if (!btn) return;
+
+    btn.addEventListener('click', () => {
+      const currentPath = btn.dataset.currentPath ?? '/zh/';
+      const currentLang = btn.dataset.currentLang ?? 'zh';
+      const targetLang = currentLang === 'zh' ? 'en' : 'zh';
+      const newPath = currentPath.replace(/^\/(zh|en)\//, '/' + targetLang + '/');
+      window.location.href = newPath;
+    });
+  }
+
+  document.addEventListener('astro:page-load', initLanguageSwitch);
+</script>

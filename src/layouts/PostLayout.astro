@@ -1,0 +1,43 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import ArticleNav from '../components/ArticleNav.astro';
+import type { Lang } from '../i18n/utils';
+
+interface PostRef {
+  title: string;
+  href: string;
+}
+
+interface Props {
+  title: string;
+  date: Date;
+  summary: string;
+  lang: Lang;
+  prev: PostRef | null;
+  next: PostRef | null;
+}
+
+const { title, date, summary, lang, prev, next } = Astro.props;
+
+const dateStr = date.toISOString().slice(0, 10).replace(/-/g, '.');
+const pageTitle = `${title} | Vibe Coding Diary`;
+---
+<BaseLayout title={pageTitle} description={summary} lang={lang} ogType="article">
+  <main>
+    <article>
+      <header class="article-header">
+        <div class="article-meta">
+          <time>{dateStr}</time>
+        </div>
+        <h1 class="article-title">{title}</h1>
+        <div class="header-divider"></div>
+      </header>
+
+      <div class="article-content">
+        <slot />
+      </div>
+
+      <ArticleNav lang={lang} prev={prev} next={next} />
+    </article>
+  </main>
+</BaseLayout>

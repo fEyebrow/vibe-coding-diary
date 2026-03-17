@@ -1,0 +1,66 @@
+---
+import { getCollection, render } from 'astro:content';
+import PostLayout from '../../../layouts/PostLayout.astro';
+import type { Lang } from '../../../i18n/utils';
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection('posts', ({ data }) => !data.draft);
+
+  const sorted = allPosts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+  return sorted.map(post => {
+    const [postLang, ...idParts] = post.id.split('/');
+    const slug = idParts.join('/').replace(/\.(md|mdx)$/, '');
+    const lang = postLang as Lang;
+
+    const sameLangPosts = sorted.filter(p => p.data.lang === lang);
+    const currentIdx = sameLangPosts.findIndex(p => p.id === post.id);
+
+    const prevPost = sameLangPosts[currentIdx + 1] ?? null;
+    const nextPost = sameLangPosts[currentIdx - 1] ?? null;
+
+    const prev = prevPost
+      ? {
+          title: prevPost.data.title,
+          href: `/${lang}/posts/${prevPost.id.split('/').slice(1).join('/').replace(/\.(md|mdx)$/, '')}`,
+        }
+      : null;
+    const next = nextPost
+      ? {
+          title: nextPost.data.title,
+          href: `/${lang}/posts/${nextPost.id.split('/').slice(1).join('/').replace(/\.(md|mdx)$/, '')}`,
+        }
+      : null;
+
+    return {
+      params: { lang, slug },
+      props: { post, prev, next },
+    };
+  });
+}
+
+interface PostRef {
+  title: string;
+  href: string;
+}
+
+interface Props {
+  post: Awaited<ReturnType<typeof getCollection<'posts'>>>[number];
+  prev: PostRef | null;
+  next: PostRef | null;
+}
+
+const { post, prev, next } = Astro.props;
+const { Content } = await render(post);
+const lang = post.data.lang;
+---
+<PostLayout
+  title={post.data.title}
+  date={post.data.date}
+  summary={post.data.summary}
+  lang={lang}
+  prev={prev}
+  next={next}
+>
+  <Content />
+</PostLayout>

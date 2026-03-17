@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>记一次失败的微服务拆分与西湖边的顿悟 | Vibe Coding Diary</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&amp;family=Noto+Serif+SC:wght@300;400;600&amp;display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #F4F2EC;
+            --text-main: #2C2D2B;
+            --text-sub: #7A8686;
+            --accent-willow: #849372;
+            --accent-gold: #DDA15E;
+            --line-color: #2C2D2B;
+
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-serif: 'Noto Serif SC', 'Songti SC', serif;
+
+            --trans-smooth: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            --layout-max-width: 720px;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1A1A18;
+            --text-main: #E2DFD8;
+            --text-sub: #8B9696;
+            --accent-willow: #A3B18A;
+            --accent-gold: #E6B95C;
+            --line-color: #E2DFD8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-serif);
+            line-height: 1.85;
+            font-size: 16px;
+            font-weight: 300;
+            letter-spacing: 0.03em;
+            transition: background-color 0.8s ease, color 0.8s ease;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+
+        ::selection {
+            background-color: var(--accent-willow);
+            color: var(--bg-color);
+        }
+
+        a {
+            color: var(--text-sub);
+            text-decoration: none;
+            transition: var(--trans-smooth);
+        }
+
+        a:hover {
+            color: var(--text-main);
+        }
+
+        /* Layout */
+        .page-wrapper {
+            max-width: var(--layout-max-width);
+            margin: 0 auto;
+            padding: 6vh 5vw 12vh 5vw;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Header / Nav */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6rem;
+        }
+
+        .site-identity {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+
+        .site-title {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            letter-spacing: 0.2em;
+            font-weight: 400;
+            color: var(--text-main);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        /* Toggle buttons */
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.4s ease, color 0.4s ease;
+            padding: 0;
+        }
+
+        .icon-btn:hover {
+            color: var(--accent-willow);
+        }
+
+        .icon-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .theme-toggle:hover {
+            transform: rotate(15deg);
+        }
+
+        /* Article header */
+        .article-header {
+            margin-bottom: 4rem;
+        }
+
+        .article-meta {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            margin-bottom: 1.8rem;
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .article-title {
+            font-size: 2.2rem;
+            font-weight: 400;
+            line-height: 1.3;
+            color: var(--text-main);
+            margin-bottom: 2rem;
+        }
+
+        .header-divider {
+            width: 40px;
+            height: 1px;
+            background-color: var(--accent-willow);
+            opacity: 0.5;
+        }
+
+        /* Article content */
+        .article-content {
+            font-size: 1.05rem;
+            color: var(--text-main);
+            text-align: justify;
+        }
+
+        .article-content p {
+            margin-bottom: 2rem;
+        }
+
+        .article-content h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 3rem 0 1.5rem;
+            color: var(--text-main);
+            position: relative;
+        }
+
+        .article-content blockquote {
+            border-left: 2px solid var(--accent-willow);
+            padding-left: 1.5rem;
+            margin: 2rem 0;
+            color: var(--text-sub);
+            font-style: italic;
+        }
+
+        /* Code block */
+        .code-block {
+            background-color: rgba(0, 0, 0, 0.03);
+            border-radius: 4px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            overflow-x: auto;
+            position: relative;
+            border: 1px solid rgba(0,0,0,0.05);
+            white-space: pre;
+            line-height: 1.6;
+        }
+
+        [data-theme="dark"] .code-block {
+            background-color: rgba(255, 255, 255, 0.03);
+            border-color: rgba(255,255,255,0.05);
+        }
+
+        code {
+            color: var(--accent-willow);
+        }
+
+        /* Article footer nav */
+        .article-footer-nav {
+            margin-top: 8rem;
+            padding-top: 3rem;
+            border-top: 1px solid rgba(123, 140, 148, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 4rem;
+        }
+
+        .prev-next {
+            display: flex;
+            justify-content: space-between;
+            gap: 2rem;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-item.next { text-align: right; }
+
+        .nav-label {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .nav-link-title {
+            font-size: 1rem;
+            color: var(--text-main);
+            font-weight: 400;
+            transition: var(--trans-smooth);
+        }
+
+        .nav-item:hover .nav-link-title {
+            color: var(--accent-willow);
+            transform: translateX(var(--dir, -4px));
+        }
+
+        .back-to-list {
+            align-self: center;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-sub);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--trans-smooth);
+        }
+
+        .back-to-list:hover {
+            color: var(--text-main);
+            letter-spacing: 0.1em;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: auto;
+            padding-top: 10vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .footer-github {
+            width: 24px;
+            height: 24px;
+            opacity: 0.3;
+            transition: opacity 0.4s ease;
+            display: block;
+        }
+
+        .footer-github:hover {
+            opacity: 0.8;
+        }
+
+        .footer-github svg {
+            width: 100%;
+            height: 100%;
+            fill: var(--text-main);
+        }
+
+
+        /* Responsive: Tablet */
+        @media (max-width: 900px) {
+            .page-wrapper {
+                padding: 5vh 6vw 10vh 6vw;
+            }
+            header {
+                margin-bottom: 4rem;
+            }
+            .article-header {
+                margin-bottom: 3rem;
+            }
+            .article-title {
+                font-size: 1.9rem;
+            }
+            .article-content h2 {
+                font-size: 1.35rem;
+            }
+            .article-footer-nav {
+                margin-top: 6rem;
+                gap: 3rem;
+            }
+        }
+
+        /* Responsive: Mobile */
+        @media (max-width: 600px) {
+            .page-wrapper {
+                padding: 4vh 7vw 8vh 7vw;
+            }
+            header {
+                flex-direction: column;
+                gap: 1.5rem;
+                margin-bottom: 3rem;
+            }
+            .site-identity {
+                align-items: center;
+            }
+            .nav-links {
+                gap: 1.2rem;
+            }
+            .article-header {
+                margin-bottom: 2.5rem;
+            }
+            .article-title {
+                font-size: 1.6rem;
+            }
+            .article-meta {
+                font-size: 0.7rem;
+                flex-wrap: wrap;
+                gap: 0.8rem;
+            }
+            .article-content {
+                font-size: 1rem;
+                text-align: left;
+            }
+            .article-content h2 {
+                font-size: 1.25rem;
+                margin: 2.5rem 0 1.2rem;
+            }
+            .article-content blockquote {
+                padding-left: 1rem;
+                margin: 1.5rem 0;
+            }
+            .code-block {
+                padding: 1rem;
+                font-size: 0.78rem;
+                margin: 1.5rem -2vw;
+                border-radius: 0;
+            }
+            .prev-next {
+                flex-direction: column;
+                gap: 2rem;
+            }
+            .nav-item.next {
+                text-align: left;
+            }
+            .article-footer-nav {
+                margin-top: 5rem;
+                gap: 2.5rem;
+            }
+            footer {
+                padding-top: 8vh;
+                gap: 1.5rem;
+            }
+        }
+
+        /* Responsive: Small mobile */
+        @media (max-width: 380px) {
+            body {
+                font-size: 15px;
+            }
+            .nav-links {
+                gap: 0.8rem;
+            }
+            .nav-links a {
+                font-size: 0.7rem;
+            }
+            .article-title {
+                font-size: 1.4rem;
+            }
+        }
+
+        /* Focus styles */
+        a:focus-visible,
+        button:focus-visible {
+            outline: 2px solid var(--accent-willow);
+            outline-offset: 4px;
+            border-radius: 2px;
+        }
+
+        /* Accessible touch targets */
+        @media (pointer: coarse) {
+            .icon-btn {
+                width: 44px;
+                height: 44px;
+            }
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-wrapper">
+        <header>
+            <div class="site-identity">
+                <span class="site-title">VIBE CODING DIARY</span>
+            </div>
+            <nav class="nav-links">
+                <a href="#">Index</a>
+                <a href="#">Archive</a>
+                <button class="icon-btn" id="langToggle" aria-label="Toggle Language">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20"></path><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                </button>
+                <button class="icon-btn theme-toggle" id="themeToggle" aria-label="Toggle Dark Mode">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+            </nav>
+        </header>
+
+        <article>
+            <header class="article-header">
+                <div class="article-meta">
+                    <time>2023.11.18</time>
+                </div>
+                <h1 class="article-title">记一次失败的微服务拆分与西湖边的顿悟</h1>
+                <div class="header-divider"></div>
+            </header>
+
+            <div class="article-content">
+                <p>两年前，我曾沉迷于将一切系统「拆解」。那是微服务概念最为狂热的时期，我坚信只有通过极致的解耦，才能应对所谓的业务爆炸。于是，我将一个本可以清晰运作的单体应用，硬生生地拆成了十几个独立服务。</p>
+
+                <blockquote>
+                    "所谓的复杂，往往不是因为业务逻辑本身，而是因为我们强加在上面的规则。"
+                </blockquote>
+
+                <p>结果显而易见：网络延迟、分布式事务、服务治理的复杂度呈几何倍数增长。团队每天都在为了解决基础设施的问题而疲于奔命，真正的业务逻辑反而停滞不前。直到那个深秋的下午，我坐在西湖边的断桥旁，看着湖面上的残荷。</p>
+
+                <h2>自然的架构</h2>
+                <p>残荷并非为了美而存在，它是生命周期的自然结果。架构也是如此，它不应该是预设的完美模型，而应该是随业务生长出来的肌理。我意识到，我之前追求的「优雅」其实是一种僵化的病态。</p>
+
+                <div class="code-block">
+// 以前追求的过度抽象
+interface IServiceOrchestrator {
+    Task&lt;VibeResult&gt; Dispatch&lt;T&gt;(T context) where T : IContext;
+}
+
+// 现在的直觉主义写法
+function solveProblem(data) {
+    if (!data) return null;
+    return processDirectly(data);
+}
+                </div>
+
+                <p>现在的我，更倾向于 Vibe Coding。不再起手就是设计模式，而是先写出流动的代码。当痛点出现，当逻辑开始冗余，当重构的呼声从直觉中升起时，架构便在那一刻自然而然地诞生。这是一种与代码共呼吸的韵律感。</p>
+
+                <p>西湖的水光潋滟，不因为谁的设计，只因为风在吹，阳光在洒。代码亦如是。</p>
+            </div>
+
+            <nav class="article-footer-nav">
+                <div class="prev-next">
+                    <a href="#" class="nav-item prev" style="--dir: -4px;">
+                        <span class="nav-label">Previous</span>
+                        <span class="nav-link-title">系统架构中的「留白美学」</span>
+                    </a>
+                    <a href="#" class="nav-item next" style="--dir: 4px;">
+                        <span class="nav-label">Next</span>
+                        <span class="nav-link-title">为什么放弃严格的 TDD 转而相信直觉</span>
+                    </a>
+                </div>
+
+                <a href="#" class="back-to-list" id="back-link">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"></path>
+                    </svg>
+                    <span id="back-link-text">Back to Index</span>
+                </a>
+            </nav>
+        </article>
+
+        <footer>
+            <a href="https://github.com/fourfish" class="footer-github" aria-label="GitHub" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                </svg>
+            </a>
+        </footer>
+    </div>
+
+    <script>
+        // Language toggle
+        const langToggle = document.getElementById('langToggle');
+        let isZh = localStorage.getItem('lang') !== 'en';
+
+        const translations = {
+            zh: {
+                title: '记一次失败的微服务拆分与西湖边的顿悟',
+                prevTitle: '系统架构中的「留白美学」',
+                nextTitle: '为什么放弃严格的 TDD 转而相信直觉',
+                backLabel: 'Back to Index',
+                prevLabel: 'Previous',
+                nextLabel: 'Next',
+            },
+            en: {
+                title: 'A Failed Microservice Split and an Epiphany by West Lake',
+                prevTitle: 'The Aesthetics of Whitespace in System Architecture',
+                nextTitle: 'Why I Abandoned Strict TDD and Started Trusting Intuition',
+                backLabel: 'Back to Index',
+                prevLabel: 'Previous',
+                nextLabel: 'Next',
+            }
+        };
+
+        const applyLang = (zh) => {
+            const t = zh ? translations.zh : translations.en;
+            document.querySelector('.article-title').textContent = t.title;
+            document.querySelector('.nav-item.prev .nav-link-title').textContent = t.prevTitle;
+            document.querySelector('.nav-item.next .nav-link-title').textContent = t.nextTitle;
+            document.querySelector('.nav-item.prev .nav-label').textContent = t.prevLabel;
+            document.querySelector('.nav-item.next .nav-label').textContent = t.nextLabel;
+            document.getElementById('back-link-text').textContent = t.backLabel;
+            langToggle.style.color = zh ? 'var(--text-sub)' : 'var(--accent-willow)';
+        };
+
+        langToggle.addEventListener('click', () => {
+            isZh = !isZh;
+            localStorage.setItem('lang', isZh ? 'zh' : 'en');
+            applyLang(isZh);
+        });
+
+        applyLang(isZh);
+
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        let isDark = localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && prefersDark);
+
+        const sunIcon = `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
+        const moonIcon = `<svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+
+        const applyTheme = (dark) => {
+            if (dark) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeToggle.innerHTML = sunIcon;
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                themeToggle.innerHTML = moonIcon;
+            }
+        };
+
+        applyTheme(isDark);
+
+        themeToggle.addEventListener('click', () => {
+            isDark = !isDark;
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            applyTheme(isDark);
+        });
+    </script>
+
+</body></html>

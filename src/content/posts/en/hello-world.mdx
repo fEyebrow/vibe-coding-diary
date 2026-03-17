@@ -1,0 +1,34 @@
+---
+title: "The Whitespace of Architecture: Designing Systems Like West Lake"
+date: 2023-10-24
+summary: "Good architecture isn't about filling every possibility — it's about leaving room to breathe. The boundaries between microservices, like the broken bridge in winter snow, rely on poetic intention."
+lang: "en"
+---
+
+import Counter from '../../../components/interactive/Counter.tsx';
+
+Two years ago, I was obsessed with breaking everything down. It was the peak of the microservices craze, and I believed that only through extreme decoupling could I handle what people called "business explosion." So I took a monolith that worked just fine and split it into dozens of independent services.
+
+> "Complexity rarely comes from the business logic itself — it comes from the rules we impose on top of it."
+
+The result was predictable: network latency, distributed transactions, service governance complexity growing geometrically. The team spent every day firefighting infrastructure issues while the actual business logic stagnated.
+
+## Natural Architecture
+
+Withered lotus flowers don't exist for beauty — they're the natural result of a life cycle. Architecture is the same. It shouldn't be a preordained perfect model, but a texture that grows with the business.
+
+```typescript
+// Intuition-driven approach
+function solveProblem(data: unknown) {
+  if (!data) return null;
+  return processDirectly(data);
+}
+```
+
+Now I lean toward Vibe Coding. Rather than starting with design patterns, I write flowing code first. When pain points emerge, when logic starts to repeat, when the urge to refactor rises from intuition — that's when architecture naturally comes into being.
+
+The shimmering light on West Lake isn't by anyone's design. It's just the wind and the sun doing their thing. Code is the same.
+
+---
+
+<Counter client:load />

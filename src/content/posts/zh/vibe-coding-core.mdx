@@ -1,0 +1,36 @@
+---
+title: "叼着薯条写出的核心模块"
+date: 2023-10-12
+summary: "摒弃了严密的 UML 图，在一个阳光刚好的下午，一边嚼着薯条一边凭直觉写出了系统最核心的调度引擎。"
+lang: "zh"
+---
+
+在一个阳光刚好的下午，我坐在西湖边的咖啡馆里，叼着薯条，打开了编辑器。
+
+没有白板，没有架构图，没有会议室里的争论。只有直觉，和一种说不清道不明的「感觉对了」。
+
+## 直觉的力量
+
+当你长时间浸泡在一个问题域里，你的大脑会在后台悄悄整理那些碎片。某一刻，当你放松下来，答案就这样自然地浮现了。
+
+```typescript
+class SchedulerEngine {
+  private queue: Task[] = [];
+
+  enqueue(task: Task): void {
+    this.queue.push(task);
+    this.flush();
+  }
+
+  private flush(): void {
+    while (this.queue.length > 0) {
+      const task = this.queue.shift();
+      if (task) task.execute();
+    }
+  }
+}
+```
+
+这段代码，就是那个下午写出来的。简单、直接、没有过度设计。后来证明，它支撑了整个系统最核心的调度逻辑。
+
+事实证明，当你的 Vibe 对了，代码的流向自然会呈现出最优解。

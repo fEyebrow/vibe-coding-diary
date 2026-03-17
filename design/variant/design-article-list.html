@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archive | Vibe Coding Diary</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&amp;family=Noto+Serif+SC:wght@300;400;600&amp;display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #F4F2EC;
+            --text-main: #2C2D2B;
+            --text-sub: #7A8686;
+            --accent-willow: #849372;
+            --accent-gold: #DDA15E;
+            --line-color: #2C2D2B;
+
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-serif: 'Noto Serif SC', 'Songti SC', serif;
+
+            --trans-smooth: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            --layout-max-width: 720px;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1A1A18;
+            --text-main: #E2DFD8;
+            --text-sub: #8B9696;
+            --accent-willow: #A3B18A;
+            --accent-gold: #E6B95C;
+            --line-color: #E2DFD8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-serif);
+            line-height: 1.85;
+            font-size: 16px;
+            font-weight: 300;
+            letter-spacing: 0.03em;
+            transition: background-color 0.8s ease, color 0.8s ease;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+
+        ::selection {
+            background-color: var(--accent-willow);
+            color: var(--bg-color);
+        }
+
+        a {
+            color: var(--text-sub);
+            text-decoration: none;
+            transition: var(--trans-smooth);
+        }
+
+        a:hover, a.active {
+            color: var(--text-main);
+        }
+
+        /* Layout */
+        .page-wrapper {
+            max-width: var(--layout-max-width);
+            margin: 0 auto;
+            padding: 6vh 5vw 12vh 5vw;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Header / Nav */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6rem;
+        }
+
+        .site-identity {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+
+        .site-title {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            letter-spacing: 0.2em;
+            font-weight: 400;
+            color: var(--text-main);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        /* Toggle buttons */
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.4s ease, color 0.4s ease;
+            padding: 0;
+        }
+
+        .icon-btn:hover {
+            color: var(--accent-willow);
+        }
+
+        .icon-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .theme-toggle:hover {
+            transform: rotate(15deg);
+        }
+
+        /* Archive header */
+        .archive-header {
+            margin-bottom: 4rem;
+        }
+
+        .archive-title {
+            font-family: var(--font-mono);
+            font-size: 1.2rem;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .archive-title::after {
+            content: '';
+            flex-grow: 1;
+            height: 1px;
+            background-color: var(--text-sub);
+            opacity: 0.2;
+        }
+
+        /* Post cards */
+        .archive-list {
+            display: grid;
+            gap: 4rem;
+        }
+
+        .post-card {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            text-decoration: none;
+        }
+
+        .post-card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-sub);
+        }
+
+        .post-card-title {
+            font-size: 1.5rem;
+            color: var(--text-main);
+            font-weight: 400;
+            transition: color 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .post-card:hover .post-card-title {
+            color: var(--accent-willow);
+            transform: translateX(8px);
+        }
+
+        .post-card-excerpt {
+            font-size: 0.95rem;
+            color: var(--text-sub);
+            line-height: 1.8;
+            max-width: 90%;
+            text-align: justify;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: auto;
+            padding-top: 10vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .footer-github {
+            width: 24px;
+            height: 24px;
+            opacity: 0.3;
+            transition: opacity 0.4s ease;
+            display: block;
+        }
+
+        .footer-github:hover {
+            opacity: 0.8;
+        }
+
+        .footer-github svg {
+            width: 100%;
+            height: 100%;
+            fill: var(--text-main);
+        }
+
+
+        /* Responsive: Tablet */
+        @media (max-width: 900px) {
+            .page-wrapper {
+                padding: 5vh 6vw 10vh 6vw;
+            }
+            header {
+                margin-bottom: 4rem;
+            }
+            .archive-header {
+                margin-bottom: 3rem;
+            }
+            .archive-list {
+                gap: 3rem;
+            }
+            .post-card-title {
+                font-size: 1.35rem;
+            }
+            .post-card-excerpt {
+                max-width: 95%;
+            }
+        }
+
+        /* Responsive: Mobile */
+        @media (max-width: 600px) {
+            .page-wrapper {
+                padding: 4vh 7vw 8vh 7vw;
+            }
+            header {
+                flex-direction: column;
+                gap: 1.5rem;
+                margin-bottom: 3rem;
+            }
+            .site-identity {
+                align-items: center;
+            }
+            .nav-links {
+                gap: 1.2rem;
+            }
+            .archive-header {
+                margin-bottom: 2.5rem;
+            }
+            .archive-title {
+                font-size: 1rem;
+            }
+            .archive-list {
+                gap: 2.5rem;
+            }
+            .post-card-title {
+                font-size: 1.2rem;
+            }
+            .post-card-excerpt {
+                max-width: 100%;
+                font-size: 0.9rem;
+            }
+            .post-card:hover .post-card-title {
+                transform: translateX(4px);
+            }
+            footer {
+                padding-top: 8vh;
+                gap: 1.5rem;
+            }
+        }
+
+        /* Responsive: Small mobile */
+        @media (max-width: 380px) {
+            body {
+                font-size: 15px;
+            }
+            .nav-links {
+                gap: 0.8rem;
+            }
+            .nav-links a {
+                font-size: 0.7rem;
+            }
+            .post-card-title {
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Focus styles */
+        a:focus-visible,
+        button:focus-visible {
+            outline: 2px solid var(--accent-willow);
+            outline-offset: 4px;
+            border-radius: 2px;
+        }
+
+        /* Accessible touch targets */
+        @media (pointer: coarse) {
+            .icon-btn {
+                width: 44px;
+                height: 44px;
+            }
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-wrapper">
+        <header>
+            <div class="site-identity">
+                <span class="site-title">VIBE CODING DIARY</span>
+            </div>
+            <nav class="nav-links">
+                <a href="#">Index</a>
+                <a href="#" class="active">Archive</a>
+                <button class="icon-btn" id="langToggle" aria-label="Toggle Language">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20"></path><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                </button>
+                <button class="icon-btn theme-toggle" id="themeToggle" aria-label="Toggle Dark Mode">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+            </nav>
+        </header>
+
+        <div class="archive-header">
+            <div class="archive-title" id="archive-title-text">Full Archive</div>
+        </div>
+
+        <main class="archive-list">
+            <a href="#" class="post-card">
+                <div class="post-card-meta">
+                    <span>2023.11.18</span>
+                </div>
+                <h2 class="post-card-title">记一次失败的微服务拆分与西湖边的顿悟</h2>
+                <p class="post-card-excerpt">当过度工程的阴霾笼罩了整个夏季，我选择在秋日的午后走向西湖。坐在柳树下看游船，突然意识到：代码的解耦不应是物理上的强行分割，而应是意境上的顺理成章。</p>
+            </a>
+
+            <a href="#" class="post-card">
+                <div class="post-card-meta">
+                    <span>2023.11.05</span>
+                </div>
+                <h2 class="post-card-title">系统架构中的「留白美学」</h2>
+                <p class="post-card-excerpt">最好的系统不是功能最多的，而是最难以删减的。讨论如何在接口设计与数据流中通过留白来应对不可预知的变更，让系统具备呼吸感。</p>
+            </a>
+
+            <a href="#" class="post-card">
+                <div class="post-card-meta">
+                    <span>2023.10.24</span>
+                </div>
+                <h2 class="post-card-title">为什么放弃严格的 TDD 转而相信直觉</h2>
+                <p class="post-card-excerpt">测试驱动开发是一种安全的假象。在这个 AI 辅助编程的时代，程序员的核心竞争力正在转向一种「审美的直觉」。当你能感受到代码的流动，正确性往往随之而来。</p>
+            </a>
+
+            <a href="#" class="post-card">
+                <div class="post-card-meta">
+                    <span>2023.09.12</span>
+                </div>
+                <h2 class="post-card-title">构建一套属于「散漫者」的工作流</h2>
+                <p class="post-card-excerpt">从 Neovim 到 Cursor，从复杂的看板到一张白纸。如何通过精简工具链，把更多的脑容量留给创造，而不是维护环境。</p>
+            </a>
+        </main>
+
+        <footer>
+            <a href="https://github.com/fEyebrow" class="footer-github" aria-label="GitHub" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                </svg>
+            </a>
+        </footer>
+    </div>
+
+    <script>
+        // Language toggle
+        const langToggle = document.getElementById('langToggle');
+        let isZh = localStorage.getItem('lang') !== 'en';
+
+        const translations = {
+            zh: {
+                archiveTitle: 'Full Archive',
+                posts: [
+                    { date: '2023.11.18', title: '记一次失败的微服务拆分与西湖边的顿悟', excerpt: '当过度工程的阴霾笼罩了整个夏季，我选择在秋日的午后走向西湖。坐在柳树下看游船，突然意识到：代码的解耦不应是物理上的强行分割，而应是意境上的顺理成章。' },
+                    { date: '2023.11.05', title: '系统架构中的「留白美学」', excerpt: '最好的系统不是功能最多的，而是最难以删减的。讨论如何在接口设计与数据流中通过留白来应对不可预知的变更，让系统具备呼吸感。' },
+                    { date: '2023.10.24', title: '为什么放弃严格的 TDD 转而相信直觉', excerpt: '测试驱动开发是一种安全的假象。在这个 AI 辅助编程的时代，程序员的核心竞争力正在转向一种「审美的直觉」。当你能感受到代码的流动，正确性往往随之而来。' },
+                    { date: '2023.09.12', title: '构建一套属于「散漫者」的工作流', excerpt: '从 Neovim 到 Cursor，从复杂的看板到一张白纸。如何通过精简工具链，把更多的脑容量留给创造，而不是维护环境。' }
+                ]
+            },
+            en: {
+                archiveTitle: 'Full Archive',
+                posts: [
+                    { date: '2023.11.18', title: 'A Failed Microservice Split and an Epiphany by West Lake', excerpt: 'As the shadow of over-engineering darkened the whole summer, I walked to West Lake one autumn afternoon. Watching boats drift under the willows, I realized: decoupling should feel inevitable, not forced.' },
+                    { date: '2023.11.05', title: 'The Aesthetics of Whitespace in System Architecture', excerpt: 'The best systems aren\'t the most feature-rich — they\'re the hardest to cut. On leaving breathing room in interfaces and data flows to absorb unpredictable change.' },
+                    { date: '2023.10.24', title: 'Why I Abandoned Strict TDD and Started Trusting Intuition', excerpt: 'Test-driven development is a comforting illusion. In the age of AI-assisted coding, the real edge is aesthetic intuition. When you can feel the flow of code, correctness tends to follow.' },
+                    { date: '2023.09.12', title: 'Building a Workflow for the Wandering Mind', excerpt: 'From Neovim to Cursor, from complex Kanban boards to a single sheet of paper. On trimming the toolchain so more of your brain can be spent creating, not configuring.' }
+                ]
+            }
+        };
+
+        const applyLang = (zh) => {
+            const t = zh ? translations.zh : translations.en;
+            document.getElementById('archive-title-text').textContent = t.archiveTitle;
+            const cards = document.querySelectorAll('.post-card');
+            t.posts.forEach((p, i) => {
+                if (cards[i]) {
+                    cards[i].querySelector('.post-card-meta span').textContent = p.date;
+                    cards[i].querySelector('.post-card-title').textContent = p.title;
+                    cards[i].querySelector('.post-card-excerpt').textContent = p.excerpt;
+                }
+            });
+            langToggle.style.color = zh ? 'var(--text-sub)' : 'var(--accent-willow)';
+        };
+
+        langToggle.addEventListener('click', () => {
+            isZh = !isZh;
+            localStorage.setItem('lang', isZh ? 'zh' : 'en');
+            applyLang(isZh);
+        });
+
+        applyLang(isZh);
+
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        let isDark = localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && prefersDark);
+
+        const sunIcon = `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
+        const moonIcon = `<svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+
+        const applyTheme = (dark) => {
+            if (dark) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeToggle.innerHTML = sunIcon;
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                themeToggle.innerHTML = moonIcon;
+            }
+        };
+
+        applyTheme(isDark);
+
+        themeToggle.addEventListener('click', () => {
+            isDark = !isDark;
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            applyTheme(isDark);
+        });
+    </script>
+</body></html>

@@ -1,0 +1,38 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import HeroSection from '../../components/HeroSection.astro';
+import PostItem from '../../components/PostItem.astro';
+import { t } from '../../i18n/utils';
+
+const lang = 'zh' as const;
+
+const allPosts = await getCollection('posts', ({ data }) => data.lang === lang && !data.draft);
+const recentPosts = allPosts
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+---
+<BaseLayout title="Vibe Coding Diary" description="西湖柳岸，代码随风生长。记录一段在湖边 vibe coding 的旅程。" lang={lang}>
+  <main>
+    <HeroSection lang={lang} />
+    <section class="journal">
+      <div class="section-header">
+        <h2 class="mono">{t('section.recentLogs', lang)}</h2>
+      </div>
+      <ul class="post-list">
+        {recentPosts.map(post => {
+          const slugParts = post.id.split('/').slice(1).join('/').replace(/\.(md|mdx)$/, '');
+          return (
+            <PostItem
+              title={post.data.title}
+              date={post.data.date}
+              summary={post.data.summary}
+              href={`/${lang}/posts/${slugParts}`}
+              lang={lang}
+            />
+          );
+        })}
+      </ul>
+    </section>
+  </main>
+</BaseLayout>
