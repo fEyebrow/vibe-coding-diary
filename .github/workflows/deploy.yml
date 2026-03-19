@@ -34,6 +34,17 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install Playwright Chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium
+
       - name: Build the static site
         # 这里的命令会把你的 Markdown/MDX 编译成纯静态文件
         run: npm run build

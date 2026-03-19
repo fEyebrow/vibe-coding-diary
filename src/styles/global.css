@@ -489,6 +489,10 @@ footer {
   border-color: rgba(255, 255, 255, 0.05);
 }
 
+[data-theme="dark"] .article-content svg {
+  filter: invert(1) hue-rotate(180deg);
+}
+
 .article-content code {
   color: var(--accent-willow);
   font-family: var(--font-mono);
